@@ -1,0 +1,61 @@
+{
+  "app_name": "Kaska",
+  "welcome_text":"Application for the presence of PPDS\nSebelas Maret University",
+  "register_welcome_text": "Hi, Let's begin from Register",
+  "login_button": "Login",
+  "register_button": "Register",
+
+  "form_nama_lengkap_hint": "Full Name",
+  "form_periode_hint": "Periode",
+
+  "form_nim_hint": "NIM",
+  "form_alamat_hint": "Address",
+  "form_hp_hint": "Phone",
+  "form_email_hint": "Email",
+  "form_email_register_hint": "Email",
+  "form_password_hint": "Password",
+  "form_repeat_password_hint": "Repeat Password",
+  "form_phone_hint": "Phone Number",
+  "form_full_name_hint": "Nama Lengkap",
+
+
+  "not_registered": "Not registered? ",
+  "daftar_flat_button": "Register Here...",
+  "allready_registered": "Allready registered? ",
+  "login_flat_button": "Login Here...",
+  "error_form_entry": "This field is required",
+  "error_email_validatiom": "Email address not valid",
+  "error_long_password_character": "Password must be at least 6 digits long",
+  "error_long_phone_character": "Phone must be at least 10 digits long",
+  "error_repeat_password_validator": "Password not match",
+
+  "title_register_dialog_success": "Yay... Register Success",
+  "description_register_dialog_success": "Lets to next page...",
+  "button_register_dialog_success": "Yup",
+
+  "title_register_dialog_user_exist": "Yaah... Register Failed",
+  "description_register_dialog_user_exist": "Email or Phone is Existing",
+  "button_register_dialog_user_exist": "Change",
+
+  "title_register_dialog_error": "Yaah... Register Failed",
+  "description_register_dialog_error": "Please check your internet username or password...",
+  "button_register_dialog_error": "Okay",
+  "quantity": "Qty",
+
+  "register_shop_text": "Let's Create Your Shop",
+  "register_get_location_button": "Fill Address Forms by Your Current Location ?",
+  "hint_register_shop_name": "Shop Name",
+  "hint_register_shop_address": "Shop Address",
+  "hint_register_shop_kecamatan": "Zone",
+  "hint_register_shop_kabupaten": "City",
+  "hint_register_shop_kodepos": "Postal Code",
+  "hint_register_shop_phone": "Shop Phone/HP.",
+  "form_izin": "Izin",
+
+  "allready_checkin_title": "Anda sudah checkin hari ini",
+
+  "appbar_create_shop": "Create Shop"
+
+
+
+}

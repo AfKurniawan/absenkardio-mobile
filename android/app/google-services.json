@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "866934720956",
+    "project_id": "absen-ppds",
+    "storage_bucket": "absen-ppds.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866934720956:android:0b6ce83dc40801b5a003b9",
+        "android_client_info": {
+          "package_name": "id.prodi.absensi_prodi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866934720956-isn5m1fkeumfh9fk2q4iph9sbq164bdo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAitLyrvKq3Dv2j7ZeMl1Pjn9Q1TM9spcs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866934720956-isn5m1fkeumfh9fk2q4iph9sbq164bdo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

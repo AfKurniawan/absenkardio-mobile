@@ -1,0 +1,61 @@
+{
+  "app_name": "Kaska",
+  "welcome_text":"Aplikasi kehadiran PPDS Jantung & Pembuluh Darah\nFakultas Kedokteran\nUniversitas Sebelas Maret",
+  "register_welcome_text": "Yuk kita mulai dengan Mendaftar",
+  "login_button":"Login",
+  "register_button": "Daftar",
+
+  "form_nama_lengkap_hint": "Nama Lengkap",
+  "form_periode_hint": "Periode",
+  "form_nim_hint": "NIM",
+  "form_alamat_hint": "Address",
+  "form_hp_hint": "Ho. HP",
+  "form_email_hint": "Email",
+  "form_email_register_hint": "Email",
+  "form_password_hint": "Password",
+  "form_repeat_password_hint": "Repeat Password",
+  "form_phone_hint": "Phone Number",
+  "form_full_name_hint": "Nama Lengkap",
+
+  "not_registered": "Belum terdaftar? ",
+  "daftar_flat_button": "Daftar yuk...",
+  "allready_registered": "Sudah Terdaftar? ",
+  "login_flat_button": "Login yuk...",
+  "error_form_entry": "Form wajib diisi",
+  "error_email_validatiom": "Alamat email tidak valid (@)",
+  "error_long_password_character": "Password minimal 6 digit",
+  "error_long_phone_character": "Minimal 10 digit",
+  "error_repeat_password_validator": "Password tidak sama",
+
+  "title_register_dialog_success": "Yaay... Pendaftaran Berhasil",
+  "description_register_dialog_success": "Lanjut ke halaman berikutnya Yuk...",
+  "button_register_dialog_success": "Yup",
+  "button_negative_success": "Cancel",
+
+  "title_register_dialog_user_exist": "Yaah... Pendaftaran Gagal nih",
+  "description_register_dialog_user_exist": "Email dan Telepon sudah pernah didaftarkan nih",
+  "button_register_dialog_user_exist": "Ganti",
+
+  "title_register_dialog_error": "Yaah... Pendaftaran Gagal nih",
+  "description_register_dialog_error": "Coba periksa kembali email/nim dan password...",
+  "button_register_dialog_error": "Iya",
+  "quantity_hint": "Qty",
+  "quantity": "Quantity",
+
+
+  "register_shop_text": "Bikin Toko Kamu Dulu Yuuk...",
+  "register_get_location_button": "Isi Alamat Berdasarkan Lokasi Aktual ? ",
+  "hint_register_shop_name": "Nama Toko Kamu",
+  "hint_register_shop_address": "Alamat Toko",
+  "hint_register_shop_kecamatan": "Kecamatan",
+  "hint_register_shop_kabupaten": "Kabupaten/Kota",
+  "hint_register_shop_kodepos": "Kode Pos",
+  "hint_register_shop_phone": "Telp/HP. Toko",
+
+  "appbar_create_shop": "Buat Toko Baru",
+  "hint_quantity" : "Quantity",
+  "scan_button": "Scan Barcode",
+
+
+  "form_izin": "Izin"
+}
