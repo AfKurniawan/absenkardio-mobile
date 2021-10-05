@@ -18,7 +18,7 @@ class LoginProvider extends ChangeNotifier {
   Color iconColor = LightColor.grey;
   bool obscure = true;
 
-  String userid, fullname, avatar, mail, prodi, nim;
+  String userid, fullname, avatar, mail, prodi, nim, statusMhs, type;
   bool isLogin ;
 
 
@@ -83,6 +83,8 @@ class LoginProvider extends ChangeNotifier {
     prefs.setString('prodi', model.user.company);
     prefs.setString('mail', model.user.emailaddress);
     prefs.setString('nim', model.user.idno);
+    prefs.setString('statusMhs', model.user.employmentstatus);
+    prefs.setString('tipe', model.user.employmenttype);
     return true;
   }
 
@@ -93,6 +95,9 @@ class LoginProvider extends ChangeNotifier {
     mail = prefs.getString('mail');
     prodi = prefs.getString('prodi');
     avatar = prefs.getString('avatar');
+    nim = prefs.getString('nim');
+    statusMhs = prefs.getString('statusMhs');
+    type = prefs.getString('tipe');
     notifyListeners();
   }
 
@@ -109,5 +114,26 @@ class LoginProvider extends ChangeNotifier {
       ),
     );
   }
+
+  String checkinTime = "";
+  String dateIn = "" ;
+  String currentLocation = "" ;
+  String reason = "" ;
+  String status = "" ;
+  String selfie = "" ;
+
+  getCheckinData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("GET CHECKIN DATA===>");
+    checkinTime = prefs.getString('chekinTime');
+    currentLocation = prefs.getString('location');
+    dateIn = prefs.getString('dateId');
+    reason = prefs.getString('reason');
+    status = prefs.getString('statusIn');
+    selfie = prefs.getString('selfie');
+    notifyListeners();
+
+  }
+
 
 }

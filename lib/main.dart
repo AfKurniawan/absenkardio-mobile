@@ -4,6 +4,7 @@ import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/main/providers/main_provider.dart';
 import 'package:absensi_prodi/src/register/provider/register_provider.dart';
 import 'package:absensi_prodi/src/styles/theme.dart';
+import 'package:absensi_prodi/src/styles/theme_provider.dart';
 import 'package:absensi_prodi/src/utilities/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,7 +25,8 @@ class MyApp extends StatelessWidget{
         ChangeNotifierProvider.value(value: LoginProvider()),
         ChangeNotifierProvider.value(value: RegisterProvider()),
         ChangeNotifierProvider.value(value: MainProvider()),
-        ChangeNotifierProvider.value(value: BerandaProvider())
+        ChangeNotifierProvider.value(value: ProfileProvider()),
+        ChangeNotifierProvider.value(value: ThemeProvider())
 
       ],
       child: MaterialApp(

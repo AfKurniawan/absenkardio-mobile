@@ -9,7 +9,7 @@ import 'package:absensi_prodi/src/checkin/widgets/dialog_error.dart';
 import 'package:absensi_prodi/src/checkin/widgets/loading_widgets.dart';
 import 'package:absensi_prodi/src/checkin/widgets/timer_widget.dart';
 import 'package:absensi_prodi/src/configs/constants.dart';
-import 'package:absensi_prodi/src/profile/pages/profile_page.dart';
+import 'package:absensi_prodi/src/checkout/pages/checkout_page.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
 import 'package:absensi_prodi/src/styles/text_styles.dart';
 import 'package:absensi_prodi/src/utilities/localization.dart';
@@ -125,7 +125,7 @@ class _CheckinPageState extends State<CheckinPage> {
     final String formattedDate = _formatDate(now);
     final String formmattedTime = _formatTime(now);
     final String formattedFilename = _dateFilename(now);
-    final String formattedDateSend = _dateFilename(now);
+    final String formattedDateSend = _formatDateSend(now);
     if (mounted) {
       setState(() {
         _dateString = formattedDate;
@@ -141,8 +141,8 @@ class _CheckinPageState extends State<CheckinPage> {
     return DateFormat('dd MMMM yyyy', "id_ID").format(dateTime.toLocal());
   }
 
-  String _formatDateSend(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd', "id_ID").format(dateTime.toLocal());
+  String _formatDateSend(DateTime formatKirim) {
+    return DateFormat('yyy-MM-dd').format(formatKirim);
   }
 
   String _dateFilename(DateTime namaFile){
@@ -317,14 +317,27 @@ class _CheckinPageState extends State<CheckinPage> {
     });
   }
 
+
+
   Future<CheckinModel> checkinAction(String url, var body) async {
     print(body);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     return await http.post(Uri.parse(url),
         body: body,
         headers: {"Accept": "application/json", 'Content-type': 'application/json'}).then((http.Response response) {
       print("BODY RESPONSE ${response.body}");
       final int statusCode = response.statusCode;
       var users = CheckinModel.fromJson(json.decode(response.body));
+
+      prefs.setString('chekinTime', users.checkin.timein);
+      prefs.setString('location', users.checkin.location);
+      prefs.setString('dateIn', users.checkin.date);
+      prefs.setString('reason', users.checkin.reason);
+      prefs.setString('statusIn', users.checkin.statusTimein);
+      prefs.setString('selfie', users.checkin.selfie);
+
+      print("DATE TO CHECKIN ===> $_dateStringSend");
+
       print("STATUS CODE${response.statusCode}");
 
       if (statusCode < 200 || statusCode > 400 || json == null) {
@@ -339,6 +352,7 @@ class _CheckinPageState extends State<CheckinPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isCheckin', checkin);
   }
+
 
   bool isLoading = true ;
   String nim = "" ;
@@ -410,11 +424,46 @@ class _CheckinPageState extends State<CheckinPage> {
       ),
     );
     return Scaffold(
+        appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "Checkin",
+          style: TextStyle(color: Colors.black),
+        ),
+        elevation: 1,
+        backgroundColor: Theme.of(context).backgroundColor,
+        // leading: IconButton(
+        //     icon: Icon(
+        //       Icons.short_text,
+        //       size: 30,
+        //       color: Colors.black,
+        //     ),
+        //     onPressed: () {
+        //       _scaffoldKey.currentState.openDrawer();
+        //     }
+        // ),
+        actions: <Widget>[
+          // FadeAnimation(
+          //   2,
+          //   ClipRRect(
+          //     borderRadius: BorderRadius.all(Radius.circular(13)),
+          //     child: Container(
+          //       // height: 40,
+          //       // width: 40,
+          //       decoration: BoxDecoration(
+          //         color: Theme.of(context).backgroundColor,
+          //       ),
+          //       child: Image.asset("assets/icons/user.png", fit: BoxFit.fill),
+          //     ),
+          //   ).p(8),
+          // ),
+        ],
+      ),
       body: isLoading == true ?
       Center(
         child: Container(
             child: SpinKitDoubleBounce(color: LightColor.unsBlue)),
-      )
+            )
           : SingleChildScrollView(
               child: Container(
                 child: Padding(
