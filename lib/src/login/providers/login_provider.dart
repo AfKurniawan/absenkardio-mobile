@@ -53,7 +53,7 @@ class LoginProvider extends ChangeNotifier {
         Navigator.pushReplacementNamed(context, "main_page");
         getLoginState(context);
       } else {
-        failedDialog(context);
+        failedDialog(context, "Login gagal", "Periksa kembali NIM dan Password anda");
       }
     });
   }
@@ -85,6 +85,8 @@ class LoginProvider extends ChangeNotifier {
     prefs.setString('nim', model.user.idno);
     prefs.setString('statusMhs', model.user.employmentstatus);
     prefs.setString('tipe', model.user.employmenttype);
+    prefs.setString('phone', model.user.mobileno);
+    prefs.setString('address', model.user.homeaddress);
     return true;
   }
 
@@ -101,14 +103,12 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  failedDialog(BuildContext context) {
+  failedDialog(BuildContext context, String title, String description) {
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialogError(
-        title: AppLocalizations.of(context)
-            .translate("title_register_dialog_error"),
-        description: AppLocalizations.of(context)
-            .translate("description_register_dialog_error"),
+        title: title,
+        description: description,
         buttonText: AppLocalizations.of(context)
             .translate("button_register_dialog_error"),
       ),
@@ -129,7 +129,7 @@ class LoginProvider extends ChangeNotifier {
     currentLocation = prefs.getString('location');
     dateIn = prefs.getString('dateId');
     reason = prefs.getString('reason');
-    status = prefs.getString('statusIn');
+    status = prefs.getString('statusin');
     selfie = prefs.getString('selfie');
     notifyListeners();
 

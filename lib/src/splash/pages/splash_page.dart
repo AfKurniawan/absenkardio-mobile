@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:absensi_prodi/animation/fade_animation.dart';
+import 'package:absensi_prodi/src/splash/providers/splash_provider.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
+import 'package:absensi_prodi/src/utilities/localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
@@ -18,34 +21,14 @@ class _SplashPageState extends State<SplashPage>{
 
   @override
   void initState() {
-    getPrefs();
+    context.read<SplashProvider>().getPrefs(context);
     super.initState();
   }
 
-  getPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isLogin = prefs.getBool("isLogin");
-      print("ISLOGIN IN SPLASHPAGE $isLogin");
-    });
-    if(isLogin == true){
-      Navigator.pushReplacementNamed(context, "main_page");
-    } else {
-      startTime();
-    }
-  }
-
-  startTime() async {
-    var duration = new Duration(seconds: 3);
-    return new Timer(duration, route);
-  }
-
-  route() {
-    Navigator.pushReplacementNamed(context, 'login_page');
-  }
 
   @override
   Widget build(BuildContext context) {
+    var local = AppLocalizations.of(context);
     return Scaffold(
       body: Center(
         child: Container(
@@ -62,9 +45,13 @@ class _SplashPageState extends State<SplashPage>{
                 SizedBox(height: 30),
                 FadeAnimation(
                   2.2,
-                  Text("Welcome",
+                  Text(
+                    "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran Universitas Sebelas Maret",
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: LightColor.purple, fontSize: 28),
+                        color: LightColor.unsBlue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
               ],

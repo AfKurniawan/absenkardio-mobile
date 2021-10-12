@@ -9,5 +9,7 @@ class Constants {
   static const String GET_PRODUCTS_DETAIL = ROOT_URL + "GetProductDetail";
   static const String UPLOAD_IMAGE = "http://admin.absenkardiouns.com/upload.php";
   static const String CHECKIN_URL = ROOT_URL + "CheckinUser";
+  static const String CHECKOUT_URL = ROOT_URL + "CheckoutUser";
+  static const String UPDATE_PROFILE_URL = ROOT_URL + "UpdateProfile";
 
 }

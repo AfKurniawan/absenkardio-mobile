@@ -24,6 +24,7 @@ class CheckinModel {
 }
 
 class Checkin {
+  String reference;
   String idno;
   String date;
   String employee;
@@ -32,18 +33,22 @@ class Checkin {
   String statusTimein;
   String reason;
   String selfie;
+  int isCheckin;
 
   Checkin(
-      {this.idno,
+      {this.reference,
+        this.idno,
         this.date,
         this.employee,
         this.timein,
         this.location,
         this.statusTimein,
         this.reason,
-        this.selfie});
+        this.selfie,
+        this.isCheckin});
 
   Checkin.fromJson(Map<String, dynamic> json) {
+    reference = json['reference'];
     idno = json['idno'];
     date = json['date'];
     employee = json['employee'];
@@ -52,10 +57,12 @@ class Checkin {
     statusTimein = json['status_timein'];
     reason = json['reason'];
     selfie = json['selfie'];
+    isCheckin = json['isCheckin'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['reference'] = this.reference;
     data['idno'] = this.idno;
     data['date'] = this.date;
     data['employee'] = this.employee;
@@ -64,6 +71,7 @@ class Checkin {
     data['status_timein'] = this.statusTimein;
     data['reason'] = this.reason;
     data['selfie'] = this.selfie;
+    data['isCheckin'] = this.isCheckin;
     return data;
   }
 }

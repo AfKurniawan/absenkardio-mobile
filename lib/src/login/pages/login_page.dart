@@ -19,7 +19,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.black38, body: body(context));
+    return Scaffold(backgroundColor: Colors.white, body: body(context));
   }
 
   _fieldFocusChange(
@@ -57,7 +57,7 @@ class LoginPage extends StatelessWidget {
                         child: Column(
                           children: <Widget>[
                             Text(
-                              local.translate("welcome_text"),
+                              "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran Universitas Sebelas Maret",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: LightColor.unsBlue,
@@ -92,24 +92,24 @@ class LoginPage extends StatelessWidget {
                   SizedBox(
                     height: 50,
                   ),
-                  FadeAnimation(
-                      2.4,
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, 'register_page');
-                            },
-                            child: Text(
-                              AppLocalizations.of(context).translate("daftar_flat_button"),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromRGBO(143, 148, 251, 1)),
-                            ),
-                          ),
-                        ],
-                      )),
+                  // FadeAnimation(
+                  //     2.4,
+                  //     Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: <Widget>[
+                  //         GestureDetector(
+                  //           onTap: () {
+                  //             Navigator.pushNamed(context, 'register_page');
+                  //           },
+                  //           child: Text(
+                  //             AppLocalizations.of(context).translate("daftar_flat_button"),
+                  //             style: TextStyle(
+                  //                 fontWeight: FontWeight.bold,
+                  //                 color: Color.fromRGBO(143, 148, 251, 1)),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     )),
                 ],
               ),
             )
@@ -127,9 +127,9 @@ class LoginPage extends StatelessWidget {
     return FadeAnimation(
       1.8,
       FormWidget(
-        hint: local.translate('form_email_hint'),
+        hint: "NIM",
         obscure: false,
-        color: Colors.white,
+        color: Colors.black,
         textEditingController: controllerEmail,
         keyboardType: TextInputType.text,
         focusNode: emailnode,
@@ -154,7 +154,7 @@ class LoginPage extends StatelessWidget {
         FormWidget(
           hint: local.translate('form_password_hint'),
           obscure: true,
-          color: Colors.white,
+          color: Colors.black,
           textEditingController: controllerPassword,
           keyboardType: TextInputType.text,
           focusNode: passwordnode,

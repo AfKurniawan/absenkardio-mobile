@@ -28,9 +28,6 @@ class TimerWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("$_dateString",
-                style: TextStyle(
-                    fontSize: 20, color: Colors.white)),
             Text("$_timeString",
                 style: TextStyle(
                     fontSize: 40,

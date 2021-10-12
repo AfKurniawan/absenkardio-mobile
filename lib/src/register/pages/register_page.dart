@@ -122,7 +122,7 @@ class RegisterPage extends StatelessWidget {
                         children: <Widget>[
                           GestureDetector(
                             onTap: () {
-                              Navigator.pushNamed(context, 'login_page');
+                              Navigator.pushReplacementNamed(context, "login_page");
                             },
                             child: Text(
                               AppLocalizations.of(context).translate("login_flat_button"),

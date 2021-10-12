@@ -5,13 +5,11 @@ import 'dart:ui';
 
 import 'package:absensi_prodi/src/checkin/models/checkin_model.dart';
 import 'package:absensi_prodi/src/checkin/pages/widgets/map_widget.dart';
-import 'package:absensi_prodi/src/checkin/widgets/analog_clock_widget.dart';
 import 'package:absensi_prodi/src/checkin/widgets/dialog_error.dart';
 import 'package:absensi_prodi/src/checkin/widgets/loading_widgets.dart';
 import 'package:absensi_prodi/src/checkin/widgets/timer_widget.dart';
 import 'package:absensi_prodi/src/configs/constants.dart';
 import 'package:absensi_prodi/src/checkout/pages/daily_info_page.dart';
-import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
 import 'package:absensi_prodi/src/styles/text_styles.dart';
 import 'package:absensi_prodi/src/utilities/localization.dart';
@@ -24,22 +22,23 @@ import 'package:cupertino_radio_choice/cupertino_radio_choice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:fluttericon/linearicons_free_icons.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as path;
 
-class CheckinPage extends StatefulWidget {
+class CheckoutPage extends StatefulWidget {
   @override
-  _CheckinPageState createState() => _CheckinPageState();
+  _CheckoutPageState createState() => _CheckoutPageState();
 }
 
-class _CheckinPageState extends State<CheckinPage> {
+class _CheckoutPageState extends State<CheckoutPage> {
   Future<Position> _future;
   Set<Marker> _markers = {};
   final Geolocator geolocator = Geolocator();
@@ -55,27 +54,21 @@ class _CheckinPageState extends State<CheckinPage> {
 
   void getCurrentLocation() async {
     Position res = await Geolocator.getCurrentPosition();
-    if(mounted){
-      setState(() {
-        position = res;
-        _child = mapWidget();
-        getAddress(position.latitude, position.longitude);
-      });
-    }
-
+    setState(() {
+      position = res;
+      _child = mapWidget();
+      getAddress(position.latitude, position.longitude);
+    });
   }
 
   getAddress(double lat, double long) async {
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
-    if(mounted){
-      setState(() {
-        place = placemarks[0];
-        _currentAddress =
-        "${place.subLocality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}";
-        print("$_currentAddress");
-      });
-    }
-
+    setState(() {
+      place = placemarks[0];
+      _currentAddress =
+          "${place.subLocality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.postalCode}";
+      print("$_currentAddress");
+    });
   }
 
   Widget mapWidget() {
@@ -163,8 +156,7 @@ class _CheckinPageState extends State<CheckinPage> {
   }
 
   static final Map<String, String> status = {
-    'Hadir': 'Hadir',
-    'Sakit': 'Sakit',
+    'Pulang': 'Pulang',
     'Izin': 'Izin'
   };
 
@@ -197,7 +189,7 @@ class _CheckinPageState extends State<CheckinPage> {
   }
 
   Future getImage() async {
-    final pickedFile = await picker.pickImage(
+    final pickedFile = await picker.getImage(
         source: ImageSource.camera,
         imageQuality: 5,
         maxHeight: 500,
@@ -227,6 +219,7 @@ class _CheckinPageState extends State<CheckinPage> {
       if (res.statusCode == 200) {
         isUploading = false;
         print("Success");
+        showSuccess(context);
       } else {
         print("gagal");
       }
@@ -239,17 +232,18 @@ class _CheckinPageState extends State<CheckinPage> {
     AchievementView(
       context,
       title: "Berhasil",
-      subTitle: "Absensi sudah berhasil di simpan, Selamat beraktifitas   ",
+      subTitle: "Anda sudah berhasil checkout, Selamat Beristirahat   ",
       isCircle: true,
       alignment: Alignment.bottomCenter,
-      duration: Duration(milliseconds: 4000),
+      duration: Duration(milliseconds: 2000),
       icon: Icon(Icons.assignment_turned_in, color: Colors.white),
       listener: (status) {
         //if(status == ach)
         print(status);
         if (status == AchievementState.open) {
           _image = null;
-          setCheckinState(true);
+          setCheckinState(false);
+          Navigator.of(context).pushReplacementNamed("main_page", arguments: 0);
         }
       },
     )..show();
@@ -262,7 +256,7 @@ class _CheckinPageState extends State<CheckinPage> {
         builder: (BuildContext context) => ErrorDialog(
               title: "Anda belum melakukan foto selfie",
               description:
-                  "Silahkan melakukan foto selfie terlebih dahulu sebelum absen...",
+                  "Silahkan melakukan foto selfie terlebih dahulu sebelum checkout...",
               filledButtonText: "Oke",
               filledButtonaction: () {
                 Navigator.of(context).pop();
@@ -271,59 +265,60 @@ class _CheckinPageState extends State<CheckinPage> {
   }
 
 
-
-  Future<CheckinModel> checkin() async {
+  void checkout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var url = Constants.CHECKIN_URL ;
-    var body = {
+    checkoutAction(Constants.CHECKOUT_URL, json.encode({
+      'uid': prefs.getString('uid'),
+      'time_out': "$_timeString",
+      'location_out': _currentAddress,
+      'status_out': seletedStatus,
+      'reason': controllerIzin.text,
+      'selfie_out': fileName,
+      'date': "$_dateStringSend",
 
-    'uid': prefs.getString('uid'),
-    'idno': prefs.getString('nim'),
-    'date': "$_dateStringSend",
-    'employee': "${prefs.getString('fullName')}",
-    'timein': "$_timeString",
-    'location': _currentAddress,
-    'statusin': seletedStatus,
-    'reason': controllerIzin.text,
-    'selfie': fileName,
-    };
-
-    print("YOUR BODY REQUEST IS ${json.encode(body)}");
-
-    Map<String, String> headers = {
-      "Accept": "application/json",
-      'Content-type': 'application/json'
-    };
+    })).then((response) {
+      if (response.error == false && _image != null) {
+        _upload(context);
+        print("Filename on data input $fileName");
+      } else if((seletedStatus == 'Izin' && _image == null) && controllerIzin.text.isNotEmpty){
+        isUploading = false;
+        print("Success");
+        showSuccess(context);
+      } else if(seletedStatus == "Izin" && controllerIzin.text.isEmpty){
+        failedDialog(context, "Keterangan izin belum diisi", "Silahkan lengkapi keterangan izin");
+      } else {
+        failedDialog(context, "Checkout Gagal", "Silahkan coba kembali nanti");
+      }
+    });
+  }
 
 
-    var response = await http.post(Uri.parse(url), body: json.encode(body), headers: headers);
-    print("RESPONSE BODY ==> ${response.body}");
-    final users = CheckinModel.fromJson(json.decode(response.body));
-    if(response.statusCode == 200){
-      prefs.setString('chekinTime', users.checkin.timein);
-      prefs.setString('location', users.checkin.location);
-      prefs.setString('dateIn', users.checkin.date);
-      prefs.setString('reason', users.checkin.reason);
-      prefs.setString('statusin', users.checkin.statusTimein);
-      prefs.setString('selfie', users.checkin.selfie);
-      _upload(context);
-      showSuccess(context);
-    } else if(users.messages == "AllReadyCheckin"){
-      failedDialog(context, "Checkin Gagal", "Anda sudah checkin hari ini");
-    } else {
-      failedDialog(context, "Checkin Gagal", "Silahkan coba lagi nanti");
-    }
-    return users;
+
+  Future<CheckinModel> checkoutAction(String url, var body) async {
+    print(body);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return await http.post(Uri.parse(url),
+        body: body,
+        headers: {"Accept": "application/json", 'Content-type': 'application/json'}).then((http.Response response) {
+      print("BODY RESPONSE ${response.body}");
+      final int statusCode = response.statusCode;
+      var users = CheckinModel.fromJson(json.decode(response.body));
+
+      print("DATE TO CHECKIN ===> $_dateStringSend");
+
+      print("STATUS CODE  ${response.statusCode}");
+
+      if (statusCode < 200 || statusCode > 400 || json == null) {
+        throw new Exception("Error while fetching data");
+      }
+      return users;
+    });
   }
 
   bool isCheckin = false;
   setCheckinState(bool checkin) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isCheckin', checkin);
-    if(mounted){
-      Navigator.of(context).pushReplacementNamed("main_page", arguments: 0);
-    }
-
   }
 
 
@@ -345,9 +340,12 @@ class _CheckinPageState extends State<CheckinPage> {
       builder: (BuildContext context) => CustomDialogError(
         title: "$title",
         description: "$description",
-        buttonText: "Oke"),
+        buttonText: AppLocalizations.of(context)
+            .translate("button_register_dialog_error"),
+      ),
     );
   }
+
 
 
   @override
@@ -373,21 +371,21 @@ class _CheckinPageState extends State<CheckinPage> {
         appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Check-in",
+          "Checkout",
           style: TextStyle(color: Colors.black),
         ),
         elevation: 1,
         backgroundColor: Theme.of(context).backgroundColor,
-        // leading: IconButton(
-        //     icon: Icon(
-        //       Icons.short_text,
-        //       size: 30,
-        //       color: Colors.black,
-        //     ),
-        //     onPressed: () {
-        //       _scaffoldKey.currentState.openDrawer();
-        //     }
-        // ),
+        leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 18,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            }
+        ),
         actions: <Widget>[
           // FadeAnimation(
           //   2,
@@ -420,7 +418,6 @@ class _CheckinPageState extends State<CheckinPage> {
                     children: [
                       SizedBox(height: 20),
                       TimerWidget(dateString: _dateString, timeString: _timeString),
-
                       SizedBox(height: 20),
                       Text("Status",
                           style: TextStyle(
@@ -462,7 +459,7 @@ class _CheckinPageState extends State<CheckinPage> {
                                     bottomLeft: Radius.circular(20),
                                   ),
                                   child: Image.file(_image, width: 150)),
-                      SizedBox(height: 30),
+                      SizedBox(height: 10),
                       seletedStatus == 'Izin' ? Container()
                       : InkWell(
                         onTap: () {
@@ -486,7 +483,7 @@ class _CheckinPageState extends State<CheckinPage> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: <Widget>[
                                   Icon(Icons.photo_camera,
-                                      size: 40, color: Colors.white)
+                                      size: 35, color: Colors.white)
                                 ],
                               ),
                             ),
@@ -517,15 +514,14 @@ class _CheckinPageState extends State<CheckinPage> {
                                 ),
                               ),
                             )
-                          : isCheckin == true ? Container()
                           : InkWell(
                               onTap: () {
                                 if (_image == null && seletedStatus != "Izin") {
                                   showDialogError(context);
                                 } else if(seletedStatus == 'Izin' && _image == null){
-                                  checkin();
+                                  checkout(context);
                                 } else if(seletedStatus != 'Izin' && _image != null){
-                                  checkin();
+                                  checkout(context);
                                 } else if(position.latitude == null || position.longitude == null ){
                                   failedDialog(context, "Lokasi Tidak Valid", "Lokasi anda tidak dapat divalidasi");
                                 } else {
@@ -545,7 +541,7 @@ class _CheckinPageState extends State<CheckinPage> {
                                 child: Center(
                                   child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text("Check-In",
+                                      child: Text("Check-out",
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w300,
@@ -554,6 +550,7 @@ class _CheckinPageState extends State<CheckinPage> {
                                 ),
                               ),
                             ),
+                      SizedBox(height: 20)
                     ],
                   ),
                 ),

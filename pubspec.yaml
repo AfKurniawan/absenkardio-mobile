@@ -56,6 +56,9 @@ dependencies:
   fluttertoast: ^8.0.8
   bottom_navy_bar: ^6.0.0
   flutter_feather_icons: ^2.0.0+1
+  page_transition: ^1.1.7+3
+  flutter_analog_clock: ^0.1.1
+
 
 
 

@@ -11,12 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class CheckoutPage extends StatefulWidget {
+class DailyInfoPage extends StatefulWidget {
   @override
-  _CheckoutPageState createState() => _CheckoutPageState();
+  _DailyInfoPageState createState() => _DailyInfoPageState();
 }
 
-class _CheckoutPageState extends State<CheckoutPage> {
+class _DailyInfoPageState extends State<DailyInfoPage> {
   String _timeString;
   String _dateString;
   String _fileString;
@@ -66,6 +66,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _timeString = _formatTime(DateTime.now());
     _dateStringSend = _formatDateSend(DateTime.now());
     context.read<LoginProvider>().getCheckinData();
+    Provider.of<LoginProvider>(context, listen: false).getLoginState(context);
     Timer.periodic(Duration(seconds: 1), (Timer t) async => _getTime());
 
     super.initState();
@@ -76,11 +77,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Consumer<LoginProvider>(
       builder: (context, user, _) {
         return Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey[50],
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              "Checkout",
+              "Absensi Hari Ini",
               style: TextStyle(color: Colors.black, fontSize: 20),
             ),
             elevation: 2,
@@ -135,23 +136,26 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(50),
                               bottomRight: Radius.circular(50)),
-                          gradient: LinearGradient(
-                              begin: Alignment(-1, -1),
-                              end: Alignment(1.0, 1.0),
-                              colors: [
-                                LightColor.unsBlue,
-                                Color.fromRGBO(143, 148, 251, .6),
-                              ])),
+                          color: Colors.grey[300]
+                          // gradient: LinearGradient(
+                          //     begin: Alignment(-1, -1),
+                          //     end: Alignment(1.0, 1.0),
+                          //     colors: [
+                          //       LightColor.unsBlue,
+                          //       Color.fromRGBO(9,121,91,0.53125),
+                          //     ])
+                      ),
                       child: Column(
                         children: [
                           const SizedBox(height: 30),
                           SizedBox(height: 10),
                           CircleAvatar(
-                            backgroundColor: Colors.white,
+                            backgroundColor: prov.selfie == "" || prov.selfie == null ? Colors.transparent : Colors.white,
                             radius: 69,
                             child: CircleAvatar(
                               radius: 66.0,
-                              backgroundImage: CachedNetworkImageProvider(
+                              backgroundImage: prov.selfie == "" || prov.selfie == null ? AssetImage("assets/icons/logo.png")
+                                  :CachedNetworkImageProvider(
                                   '${Constants.IMG_URL}${prov.selfie}'),
                               backgroundColor: Colors.transparent,
                             ),
@@ -160,7 +164,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           Text(
                             '${prov.fullname}',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueAccent),
                           ),
                           const SizedBox(height: 5),
                           Text(
@@ -200,7 +204,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Absensi Hari Ini",
+                          "Detail Absensi",
                           style: TextStyle(
                             fontSize: 17.0,
                             color: LightColor.unsBlue,
@@ -251,7 +255,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         Divider(),
                         SizedBox(height: 20),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, 'checkout_page');
+                          },
                           splashColor: Color.fromRGBO(143, 148, 251, 1),
                           child: Container(
                             height: 50,

@@ -11,6 +11,7 @@ class FormWidget extends StatelessWidget {
   TextInputAction textInputAction;
   FormFieldValidator<String> validator;
   IconButton icon;
+  Icon prefixIcon;
   int maxline;
   Color color;
 
@@ -25,6 +26,7 @@ class FormWidget extends StatelessWidget {
     this.textInputAction,
     this.validator,
     this.icon,
+    this.prefixIcon,
     this.maxline
   
   });
@@ -43,6 +45,7 @@ class FormWidget extends StatelessWidget {
       onFieldSubmitted: onsubmit,
       decoration: InputDecoration(
         suffixIcon: icon,
+          prefixIcon: prefixIcon,
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey[600], width: 1.5),
             borderRadius: BorderRadius.all(Radius.circular(10)),
