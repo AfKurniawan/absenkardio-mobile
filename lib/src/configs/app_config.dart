@@ -75,8 +75,8 @@ class CustomColors {
 class Consts {
   Consts._();
 
-  static const double padding = 16.0;
-  static const double avatarRadius = 66.0;
+  static const double padding = 14.0;
+  static const double avatarRadius = 50.0;
 }
 
 const kSpacingUnit = 10;

@@ -3,6 +3,7 @@ import 'package:absensi_prodi/src/checkin/pages/checkin_page.dart';
 import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/main/providers/main_provider.dart';
 import 'package:absensi_prodi/src/profile/helpers/colors.dart';
+import 'package:absensi_prodi/src/styles/theme/theme_model.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -107,39 +108,44 @@ class _MainPageState extends State<MainPage> {
   Widget MyNavbar(BuildContext context){
     var provider = Provider.of<MainProvider>(context);
     final theme = Theme.of(context);
-    return BottomNavyBar(
-      selectedIndex: provider.currentTab,
-      backgroundColor: Colors.white,
-      onItemSelected: (index) {
-        setState(() {
-          context.read<MainProvider>().selectTab(context, index);
-        });
-      },
-      items: [
-        BottomNavyBarItem(
-          icon:Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Icon(LineariconsFree.clock_2,
-              size: 20,
-              color: Colors.green,
+    return Consumer<ThemeModel>(
+      builder: (context, tm, _){
+        return BottomNavyBar(
+          selectedIndex: provider.currentTab,
+          backgroundColor: tm.isDark? Colors.grey[900]: Colors.white,
+          onItemSelected: (index) {
+            setState(() {
+              context.read<MainProvider>().selectTab(context, index);
+            });
+          },
+          items: [
+            BottomNavyBarItem(
+              icon:Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Icon(LineariconsFree.clock_2,
+                  size: 20,
+                  color: Colors.green,
+                ),
+              ),
+              title: isCheckin == true
+                  ? Text("Beranda")
+                  : Text("Check-In"),
+              activeColor: Colors.blue,
             ),
-          ),
-          title: isCheckin == true
-              ? Text("Beranda")
-              : Text("Check-In"),
-          activeColor: theme.primaryColor,
-        ),
-        BottomNavyBarItem(
-          icon:Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Icon(LineariconsFree.user_1,
-                    size: 20,
-                  ),
-          ),
-                title: Text("Profil"),
-          activeColor: theme.primaryColor,
-        ),
-      ],
+            BottomNavyBarItem(
+              icon:Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Icon(LineariconsFree.user_1,
+                  size: 20,
+                  color: Colors.blueAccent,
+                ),
+              ),
+              title: Text("Profil"),
+              activeColor: Colors.blue,
+            ),
+          ],
+        );
+      },
     );
   }
 

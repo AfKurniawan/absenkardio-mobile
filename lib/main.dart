@@ -5,6 +5,7 @@ import 'package:absensi_prodi/src/main/providers/main_provider.dart';
 import 'package:absensi_prodi/src/register/provider/register_provider.dart';
 import 'package:absensi_prodi/src/splash/providers/splash_provider.dart';
 import 'package:absensi_prodi/src/styles/theme.dart';
+import 'package:absensi_prodi/src/styles/theme/theme_model.dart';
 import 'package:absensi_prodi/src/styles/theme_provider.dart';
 import 'package:absensi_prodi/src/utilities/localization.dart';
 import 'package:flutter/material.dart';
@@ -32,36 +33,40 @@ class MyApp extends StatelessWidget{
         ChangeNotifierProvider.value(value: RegisterProvider()),
         ChangeNotifierProvider.value(value: MainProvider()),
         ChangeNotifierProvider.value(value: ProfileProvider()),
-        ChangeNotifierProvider.value(value: ThemeProvider())
+        ChangeNotifierProvider.value(value: ThemeModel()),
 
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        routes: Routing.getRoute(),
-        initialRoute: "/",
-        onGenerateRoute: (settings) => Routing.onGenerateRoute(settings),
-        theme: MyTheme.lightTheme,
-        navigatorKey: navKey,
+      child: Consumer<ThemeModel>(
+        builder: (context, ThemeModel themeNotifier, child){
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            routes: Routing.getRoute(),
+            initialRoute: "/",
+            onGenerateRoute: (settings) => Routing.onGenerateRoute(settings),
+            theme: themeNotifier.isDark ? ThemeData.dark() : ThemeData.light(),
+            navigatorKey: navKey,
 
-        supportedLocales: [
-          Locale('en', 'US'),
-          Locale('id', 'ID')
-        ],
+            supportedLocales: [
+              Locale('en', 'US'),
+              Locale('id', 'ID')
+            ],
 
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        localeResolutionCallback: (locale, supportedLocales) {
-          for (var supportedLocaleLanguage in supportedLocales) {
-            if (supportedLocaleLanguage.languageCode == locale.languageCode &&
-                supportedLocaleLanguage.countryCode == locale.countryCode) {
-              return supportedLocaleLanguage;
-            }
-          }
-          return supportedLocales.first;
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            localeResolutionCallback: (locale, supportedLocales) {
+              for (var supportedLocaleLanguage in supportedLocales) {
+                if (supportedLocaleLanguage.languageCode == locale.languageCode &&
+                    supportedLocaleLanguage.countryCode == locale.countryCode) {
+                  return supportedLocaleLanguage;
+                }
+              }
+              return supportedLocales.first;
+            },
+          );
         },
       ),
     );

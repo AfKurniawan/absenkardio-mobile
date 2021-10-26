@@ -11,12 +11,14 @@ import 'package:absensi_prodi/src/checkin/widgets/timer_widget.dart';
 import 'package:absensi_prodi/src/checkout/models/checkout_model.dart';
 import 'package:absensi_prodi/src/configs/constants.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
+import 'package:absensi_prodi/src/styles/theme/theme_model.dart';
 import 'package:absensi_prodi/src/widgets/dialog_error_widget.dart';
 import 'package:absensi_prodi/src/widgets/form_widget.dart';
 import 'package:achievement_view/achievement_view.dart';
 import 'package:achievement_view/achievement_widget.dart';
 import 'package:cupertino_radio_choice/cupertino_radio_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_analog_clock/flutter_analog_clock.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
@@ -25,6 +27,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
@@ -71,7 +74,15 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
     }
   }
 
+  String _darkMapStyle;
+  String _lightMapStyle;
+  Future _loadMapStyles() async {
+    _darkMapStyle  = await rootBundle.loadString('assets/maps_style/dark.json');
+    _lightMapStyle = await rootBundle.loadString('assets/maps_style/light.json');
+  }
+
   Widget mapWidget() {
+    final tm = Provider.of<ThemeModel>(context, listen: false);
     return GoogleMap(
       markers: _createMarker(),
       myLocationEnabled: true,
@@ -81,6 +92,7 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
       ),
       onMapCreated: (GoogleMapController controller) {
         _mapController = controller;
+        tm.isDark? controller.setMapStyle(_darkMapStyle) : controller.setMapStyle(_lightMapStyle);
       },
     );
   }
@@ -117,6 +129,7 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
     getCurrentLocation();
     _child = Center(child: SpinKitDoubleBounce(color: LightColor.unsBlue));
     super.initState();
+    _loadMapStyles();
   }
 
   String uid = "";
@@ -265,21 +278,13 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
     )..show();
   }
 
-  Future<void> showDialogError(BuildContext context, String title, String deskripsi) async {
-    return showDialog<void>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) => ErrorDialog(
-              title: "$title",
-              description:
-                  "$deskripsi",
-              filledButtonText: "Oke",
-              filledButtonaction: () {
-                Navigator.of(context).pop();
-              },
-            ));
+  showDialogError(BuildContext context, String title, String description) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialogError(
+          title: "$title", description: "$description", buttonText: "Oke"),
+    );
   }
-
 
   Future<CheckoutModel> checkout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -352,6 +357,7 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
     final genderSelectionTile = new Material(
@@ -370,181 +376,192 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
         ],
       ),
     );
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        title: Text("Check-out", style: TextStyle(color: LightColor.unsBlue)),
-        elevation: 0,
-        leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: 20,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            }),
-
-      ),
-      body: Stack(
-        children: <Widget>[
-          Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: _child),
-          SingleChildScrollView(
-            padding: EdgeInsets.only(top: 180),
-            child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(1, 4),
-                      blurRadius: 6,
-                      color: Colors.black,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 18.0, right: 18, top: 10),
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        height: 3,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[600],
-                          borderRadius: BorderRadius.all(Radius.circular(20),
-                          ),
+    return Consumer<ThemeModel>(
+      builder: (context, tm, _){
+        return Scaffold(
+          backgroundColor: tm.isDark ? Colors.grey[700] : Colors.white,
+          appBar: AppBar(
+            backgroundColor: tm.isDark? Colors.grey[900]: Colors.white,
+            centerTitle: true,
+            title: Text("Check-in", style: TextStyle(color: LightColor.unsBlue)),
+            elevation: 0,
+          ),
+          body: Stack(
+            children: <Widget>[
+              Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                  ),
+                  child: _child),
+              SingleChildScrollView(
+                padding: EdgeInsets.only(top: 180),
+                child: Container(
+                    height: MediaQuery.of(context).size.height - 200,
+                    decoration: BoxDecoration(
+                      color: tm.isDark ? Colors.black : Colors.white,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          offset: Offset(1, 4),
+                          blurRadius: 6,
+                          color: Colors.black,
                         ),
-                      ),
-                      SizedBox(height: 30),
-                      Text("Checkout dulu yuuk, sebelum pulang...", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300)),
-                      Padding(
-                          padding: const EdgeInsets.only(left: 18, right: 18, top: 30),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Container(
-                                  padding: EdgeInsets.all(20.0),
-                                  decoration: BoxDecoration(
-                                    color: Color(0xfffcfcfd),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    border: Border.all(
-                                      color: Colors.grey[200],
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        offset: Offset(1, 4),
-                                        blurRadius: 6,
-                                        color: Colors.grey[200],
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 18.0, right: 18, top: 10),
+                      child: Column(
+                        children: <Widget>[
+                          Container(
+                            height: 3,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[600],
+                              borderRadius: BorderRadius.all(Radius.circular(20),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 30),
+                          Text("Yuuk lengkapi absensi dulu sebelum checkout ini...", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300)),
+                          Padding(
+                              padding: const EdgeInsets.only(left: 18, right: 18, top: 20),
+                              child: Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Container(
+                                      padding: EdgeInsets.only(bottom: 10.0, top: 10),
+                                      decoration: BoxDecoration(
+                                        color: tm.isDark? Colors.grey[800]: Color(0xfffcfcfd),
+                                        borderRadius: BorderRadius.circular(15.0),
+                                        border: Border.all(
+                                            color: Colors.grey[200],
+                                            width: 3
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            offset: Offset(1, 4),
+                                            blurRadius: 6,
+                                            color: tm.isDark? Colors.transparent: Colors.grey[200],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        "$_tanggal",
-                                        style: TextStyle(
-                                            color: Colors.grey[500],
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 40),
-                                      ),
-                                      Text(
-                                        "$_bulan",
-                                        style:
-                                        TextStyle(color: Colors.grey[500], fontSize: 28, fontWeight: FontWeight.w300),
-                                      ),
-                                      RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(color: Colors.grey),
-                                          children: [
-                                            TextSpan(
-                                              text: "$_tahun",
-                                              style: TextStyle(fontWeight: FontWeight.w300, fontSize: 20),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "$_tanggal",
+                                                  style:
+                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
+                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "$_bulan",
+                                                  style:
+                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
+                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "$_tahun",
+                                                  style:
+                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
+                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                ),
+                                              ],
                                             ),
+
+                                            // Text(
+                                            //   "$_bulan",
+                                            //   style:
+                                            //   TextStyle(color: tm.isDark? Colors.white: Colors.grey[500],
+                                            //       fontSize: 20, fontWeight: FontWeight.w300),
+                                            // ),
+                                            // RichText(
+                                            //
+                                            //   text: TextSpan(
+                                            //     text: "$_tanggal",
+                                            //     style: TextStyle(color: tm.isDark? Colors.white: Colors.grey[500],fontSize: 18),
+                                            //     children: [
+                                            //       TextSpan(
+                                            //         text: "$_bulan",
+                                            //         style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
+                                            //       ),
+                                            //       TextSpan(
+                                            //         text: "$_tahun",
+                                            //         style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18),
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // ),
+                                            Divider(),
+
+                                            Container(
+                                                child: Center(
+                                                  child: Text("$_timeString",
+                                                      style: TextStyle(
+                                                          fontSize: 30,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.blueAccent)),
+                                                )
+                                            )
                                           ],
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 9.0,
-                                      ),
-                                      Divider(),
-
-                                      SizedBox(
-                                        height: 9.0,
-                                      ),
-                                      Container(
-                                          child: Center(
-                                            child: Text("$_timeString",
-                                                style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.grey[500])),
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                ),
+                                    ),
+                                  )
+                                ],
                               )
-                            ],
-                          )
-                      ),
-                      SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Bagaimana Status Anda Hari Ini ??", style: TextStyle(fontSize: 14, color: Colors.grey[500])),
-                              SizedBox(height: 5),
-                              genderSelectionTile,
-                            ],
                           ),
-                          SizedBox(width: 30),
-                          Hero(
-                            tag: 1,
-                            child: InkWell(
-                              splashColor: Colors.white,
-                              onTap: (){
-                                getImage2();
-                              },
-                              child: Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      colors: [LightColor.unsBlue, LightColor.lightBlue]),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey,
-                                        blurRadius: 3.0,
-                                        offset: Offset(0, 3)),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(16)),
-                                  child: _image == null
-                                      ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                          SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Bagaimana Status Anda Hari Ini ??", style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+                                  SizedBox(height: 5),
+                                  genderSelectionTile,
+                                ],
+                              ),
+                              SizedBox(width: 30),
+                              Hero(
+                                tag: 1,
+                                child: InkWell(
+                                  splashColor: Colors.white,
+                                  onTap: (){
+                                    getImage2();
+                                  },
+                                  child: Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                          colors: [LightColor.unsBlue, LightColor.lightBlue]),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(16)),
+                                      child: _image == null
+                                          ? Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                         Icon(Icons.camera_alt, color: Colors.white, size: 30),
-                                          Text("Selfie", style: TextStyle(color: Colors.white)),
+                                          Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                                          Text(seletedStatus == "Sakit" ? "Ket. Sakit" : "Selfie", style: TextStyle(color: Colors.white)),
                                         ],
                                       )
-                                      : Stack(
+                                          : Stack(
                                         children: [
                                           Container(
                                             height: 80,
@@ -557,214 +574,83 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
                                             ),
                                           ),
                                           Positioned(
-                                            bottom: 5,
+                                              bottom: 5,
                                               right: 5,
                                               child: Center(
                                                   child: Icon(Icons.camera_alt, color: Colors.white38))
                                           )
                                         ],
                                       ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          seletedStatus == 'Izin'
+                              ? FormWidget(
+                            maxline: 3,
+                            hint: "Keterangan",
+                            obscure: false,
+                            textEditingController: controllerIzin,
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
+                            icon: IconButton(icon: Icon(Icons.text_fields)),
+                          ) : Container(),
+                          SizedBox(
+                            height: 30,
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
-                      seletedStatus == 'Izin'
-                          ? FormWidget(
-                        maxline: 3,
-                        hint: "Keterangan",
-                        obscure: false,
-                        textEditingController: controllerIzin,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.next,
-                        icon: IconButton(icon: Icon(Icons.text_fields)),
-                      ) : Container(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          if (_image == null) {
-                            showDialogError(context, "Anda belum melakukan foto selfie", "Silahkan melakukan foto selfie terlebih dahulu sebelum Checkout");
-                          } else if(position.latitude == null || position.longitude == null ){
-                            showDialogError(context, "Lokasi Tidak Valid", "Lokasi anda tidak dapat divalidasi");
-                          } else if(seletedStatus == "Pulang" && _image != null){
-                            checkout();
-                          } else if(seletedStatus == "Izin" && controllerIzin.text.isEmpty){
-                            showDialogError(context, "Keterangan belum diisi", "Harap isi keterangan sebelum melakukan Checkin");
-                          } else {
-                            checkout();
-                          }
-                        },
-                        splashColor: Color.fromRGBO(143, 148, 251, 1),
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              gradient: LinearGradient(colors: [
-                                LightColor.unsBlue,
-                                Color.fromRGBO(143, 148, 251, .6),
-                              ])),
-                          child: Center(
-                            child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text("Check-Out",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 18),
-                                )),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
-                )),
-          ),
-
-        ],
-      ),
-      // floatingActionButton:
-      // Padding(
-      //   padding: const EdgeInsets.only(left: 12.0, right: 12),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.end,
-      //     children: <Widget>[
-      //       Hero(
-      //         tag: 1,
-      //         child: GestureDetector(
-      //           onTap: () {},
-      //           child: Container(
-      //             width: 100,
-      //             height: 60,
-      //             padding: EdgeInsets.all(15.0),
-      //             decoration: BoxDecoration(
-      //               gradient: LinearGradient(
-      //                   colors: [LightColor.unsBlue, LightColor.lightBlue]),
-      //               borderRadius: BorderRadius.circular(9.0),
-      //               boxShadow: [
-      //                 BoxShadow(
-      //                     color: Colors.grey,
-      //                     blurRadius: 3.0,
-      //                     offset: Offset(0, 3)),
-      //               ],
-      //             ),
-      //             child: Center(
-      //               child: Text(
-      //                 "Checkin",
-      //                 style: Theme.of(context)
-      //                     .textTheme
-      //                     .button
-      //                     .apply(color: Colors.white),
-      //                 textAlign: TextAlign.center,
-      //               ),
-      //             ),
-      //           ),
-      //         )
-      //       ),
-      //     ],
-      //   ),
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
-  }
-
-
-  Widget _buildContentUI() {
-    return Row(
-      children: <Widget>[
-        Hero(
-          tag: 1,
-          child: Container(
-            padding: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(16))),
-            child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              child: Image.network(
-                "https://www.thefamouspeople.com/profiles/images/edward-snowden-5.jpg",
-                height: 100,
-                width: 100,
-                fit: BoxFit.fill,
+                    )),
               ),
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 130,
-        ),
-        Container(
-          padding: EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-          ),
-          child: CircleAvatar(
-            radius: 35,
-            child: Icon(Icons.camera_alt),
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.lightBlue,
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildDocumentAttachmentWidget() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 12),
-      height: 70,
-      color: Color(0xffE7F8FA),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            width: 3,
-            color: Colors.lightBlue,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Transform.rotate(
-              angle: 3.14 / 180 * 45,
-              child: Icon(
-                Icons.attach_file,
-                color: Colors.lightBlueAccent,
-              ),
-            ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Complete blood count",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.blueAccent,
-                ),
-              ),
-              SizedBox(
-                height: 6,
-              ),
-              Text(
-                "05 Mar 2020",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.blueGrey,
-                  fontWeight: FontWeight.w600,
-                ),
-              )
             ],
-          )
-        ],
-      ),
+          ),
+          floatingActionButton:
+          Padding(
+            padding: const EdgeInsets.only(left:12.0, right: 12),
+            child: InkWell(
+              onTap: () {
+                if(position.latitude == null || position.longitude == null ){
+                  showDialogError(context, "Lokasi Tidak Valid", "Lokasi anda tidak dapat divalidasi");
+                } else if(seletedStatus == "Pulang" && _image != null){
+                  checkout();
+                } else if(seletedStatus == "Izin" &&controllerIzin.text.isEmpty){
+                  showDialogError(context, "Keterangan belum diisi", "Harap isi keterangan sebelum melakukan Checkout");
+                } else {
+                  showDialogError(context, "Anda belum melakukan foto selfie", "Silahkan melakukan foto selfie terlebih dahulu sebelum Checkout");
+                }
+              },
+              splashColor: Color.fromRGBO(143, 148, 251, 1),
+              child: Container(
+                height: 50,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(colors: [
+                      LightColor.unsBlue,
+                      Color.fromRGBO(143, 148, 251, .6),
+                    ])),
+                child: Center(
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("Check-Out",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                            fontSize: 18),
+                      )),
+                ),
+              ),
+            ),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        );
+      },
     );
   }
+
+
 }

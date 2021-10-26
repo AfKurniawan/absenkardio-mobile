@@ -46,7 +46,7 @@ class _SplashPageState extends State<SplashPage>{
                 FadeAnimation(
                   2.2,
                   Text(
-                    "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran Universitas Sebelas Maret",
+                    "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran\nUniversitas Sebelas Maret",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: LightColor.unsBlue,

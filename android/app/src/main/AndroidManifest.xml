@@ -11,8 +11,8 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:usesCleartextTraffic="true"
-        android:label="absensi_prodi"
-        android:icon="@mipmap/ic_launcher">
+        android:label="Absensi PPDS Jantung"
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDXbTA95iJN3ylJ9TA9tl_HGiixXpkT978"/>
         <activity

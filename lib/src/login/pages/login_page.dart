@@ -1,6 +1,7 @@
 import 'package:absensi_prodi/animation/fade_animation.dart';
 import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
+import 'package:absensi_prodi/src/styles/theme/theme_model.dart';
 import 'package:absensi_prodi/src/utilities/localization.dart';
 import 'package:absensi_prodi/src/widgets/button_widget.dart';
 import 'package:absensi_prodi/src/widgets/form_widget.dart';
@@ -19,7 +20,9 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: Colors.white, body: body(context));
+    return Scaffold(
+
+        body: body(context));
   }
 
   _fieldFocusChange(
@@ -33,89 +36,95 @@ class LoginPage extends StatelessWidget {
     var local = AppLocalizations.of(context);
     // final provider = Provider.of<LoginProvider>(context);
     // final prefsprovider = Provider.of<PrefsProvider>(context);
-    return SingleChildScrollView(
-      child: Container(
-        margin: EdgeInsets.only(top: 30),
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FadeAnimation(
-              1.0,
-              Container(
-                height: 100,
-                child: Image.asset('assets/icons/logo.png'),
-              ),
-            ),
-            Stack(
+    return Consumer<ThemeModel>(
+      builder: (context, tm, _){
+        return SingleChildScrollView(
+          child: Container(
+            color: tm.isDark? Colors.black : Colors.white,
+            margin: EdgeInsets.only(top: 30),
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Positioned(
-                  child: FadeAnimation(
-                      1.2,
-                      Container(
-                        padding: EdgeInsets.all(40),
+                FadeAnimation(
+                  1.0,
+                  Container(
+                    height: 100,
+                    child: Image.asset('assets/icons/logo.png'),
+                  ),
+                ),
+                Stack(
+                  children: <Widget>[
+                    Positioned(
+                      child: FadeAnimation(
+                          1.2,
+                          Container(
+                            padding: EdgeInsets.all(40),
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran\nUniversitas Sebelas Maret",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: LightColor.unsBlue,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                          )),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Form(
+                        key: _formKey,
                         child: Column(
                           children: <Widget>[
-                            Text(
-                              "Aplikasi kehadiran\nPPDS Jantung dan Pembuluh Darah\nFakultas Kedokteran Universitas Sebelas Maret",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: LightColor.unsBlue,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700),
-                            ),
+                            formEmail(context),
+                            SizedBox(height: 20),
+                            formPassword(context),
                           ],
                         ),
-                      )),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      buttonLogin(context),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      // FadeAnimation(
+                      //     2.4,
+                      //     Row(
+                      //       mainAxisAlignment: MainAxisAlignment.center,
+                      //       children: <Widget>[
+                      //         GestureDetector(
+                      //           onTap: () {
+                      //             Navigator.pushNamed(context, 'register_page');
+                      //           },
+                      //           child: Text(
+                      //             AppLocalizations.of(context).translate("daftar_flat_button"),
+                      //             style: TextStyle(
+                      //                 fontWeight: FontWeight.bold,
+                      //                 color: Color.fromRGBO(143, 148, 251, 1)),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     )),
+                    ],
+                  ),
                 )
               ],
             ),
-            Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: <Widget>[
-                        formEmail(context),
-                        SizedBox(height: 20),
-                        formPassword(context),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  buttonLogin(context),
-                  SizedBox(
-                    height: 50,
-                  ),
-                  // FadeAnimation(
-                  //     2.4,
-                  //     Row(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: <Widget>[
-                  //         GestureDetector(
-                  //           onTap: () {
-                  //             Navigator.pushNamed(context, 'register_page');
-                  //           },
-                  //           child: Text(
-                  //             AppLocalizations.of(context).translate("daftar_flat_button"),
-                  //             style: TextStyle(
-                  //                 fontWeight: FontWeight.bold,
-                  //                 color: Color.fromRGBO(143, 148, 251, 1)),
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     )),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+          ),
+        );
+      },
+
     );
   }
 
