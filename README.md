@@ -1,6 +1,7 @@
-# absensi_prodi
+# Absensi Prodi
+An applications, build using flutter.
 
-A new Flutter application.
+This projects is for attendance base on locations, selfie camera, and time date
 
 ## Getting Started
 
