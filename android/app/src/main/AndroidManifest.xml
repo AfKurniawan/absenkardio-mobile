@@ -14,7 +14,7 @@
         android:label="Absensi PPDS Jantung"
         android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDXbTA95iJN3ylJ9TA9tl_HGiixXpkT978"/>
+            android:value="MAP_API_KEY"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
