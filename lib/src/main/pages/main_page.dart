@@ -1,5 +1,5 @@
 
-import 'package:absensi_prodi/src/checkin/pages/checkin_page.dart';
+import 'package:absensi_prodi/src/checkin/pages/new_checkin_page.dart';
 import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/main/providers/main_provider.dart';
 import 'package:absensi_prodi/src/profile/helpers/colors.dart';
@@ -8,13 +8,13 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:fluttericon/linearicons_free_icons.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {
 
   int currentTab;
-  Widget currenPage = new CheckinPage();
   String currentTitle;
 
 
@@ -28,12 +28,55 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  String _timeString;
+  String _dateString;
+  String _fileString;
+  String _dateStringSend;
+  String _formatDate(DateTime dateTime) {
+    return DateFormat('dd MMMM yyyy', "id_ID").format(dateTime.toLocal());
+  }
+
+  String _formatDateSend(DateTime dateTime) {
+    return DateFormat('yyyy-MM-dd', "id_ID").format(dateTime.toLocal());
+  }
+
+  String _dateFilename(DateTime namaFile) {
+    return DateFormat('ddMMyyhhmmss').format(namaFile.toLocal());
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return DateFormat('HH:mm:ss', "id_ID").format(dateTime.toLocal());
+  }
+
+
+  Future _getTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final DateTime now = DateTime.now();
+    final String formattedDate = _formatDate(now);
+    final String formmattedTime = _formatTime(now);
+    final String formattedFilename = _dateFilename(now);
+    final String fomratedDateSend = _formatDateSend(now);
+
+    String checkDate = prefs.getString("date_checkin");
+    if (mounted) {
+      setState(() {
+        _dateString = formattedDate;
+        _timeString = formmattedTime;
+        _fileString = formattedFilename;
+        _dateStringSend = fomratedDateSend;
+        if (checkDate == _dateString){
+          print("Semm THIS TIME CHECK DATE $checkDate");
+        }
+      });
+    }
+  }
 
   @override
   void initState() {
     context.read<MainProvider>().selectTab(context, widget.currentTab);
     context.read<LoginProvider>().getCheckinData();
     getcheckinState();
+    //_getTime();
     super.initState();
   }
 

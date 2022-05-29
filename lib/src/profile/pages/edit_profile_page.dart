@@ -112,7 +112,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     radius: 69,
                                     child: CircleAvatar(
                                       radius: 66.0,
-                                      backgroundImage: CachedNetworkImageProvider(
+                                      backgroundImage: prov.avatar == "" ?
+                                      AssetImage("assets/icons/no-image.png")
+                                          : CachedNetworkImageProvider(
                                           '${Constants.IMG_URL}${prov.avatar}'),
                                       backgroundColor: Colors.transparent,
                                     ),

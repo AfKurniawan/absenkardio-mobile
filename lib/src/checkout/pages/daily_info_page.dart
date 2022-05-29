@@ -7,10 +7,12 @@ import 'package:absensi_prodi/src/profile/provider/profile_provider.dart';
 import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/styles/light_color.dart';
 import 'package:absensi_prodi/src/styles/theme/theme_model.dart';
+import 'package:absensi_prodi/src/widgets/dialog_error_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyInfoPage extends StatefulWidget {
   @override
@@ -23,27 +25,43 @@ class _DailyInfoPageState extends State<DailyInfoPage> {
   String _fileString;
   String _dateStringSend;
 
-  void _getTime() {
+  Future _getTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final DateTime now = DateTime.now();
     final String formattedDate = _formatDate(now);
     final String formmattedTime = _formatTime(now);
     final String formattedFilename = _dateFilename(now);
     final String fomratedDateSend = _formatDateSend(now);
+
+    String checkDate = prefs.getString("date_checkin");
+
     if (mounted) {
       setState(() {
         _dateString = formattedDate;
         _timeString = formmattedTime;
         _fileString = formattedFilename;
         _dateStringSend = fomratedDateSend;
-
-        if (_timeString == "15:45:00") {
-          print("THIS TIME");
+        if (checkDate != _dateStringSend){
+          //failedDialog(context, "Anda Belum Checkout", "Silahkan melakukan Chekout untuk bisa Checkin kembali hari ini");
         }
       });
     }
+}
+
+  failedDialog(BuildContext context, String title, String description)async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomDialogError(
+          title: "$title", description: "$description", buttonText: "Oke", btnOkeAction: (){
+        Navigator.of(context).pushReplacementNamed("main_page", arguments: 0);
+       // prefs.setBool("isCheckin", true);
+      }),
+    );
   }
 
-  String _formatDate(DateTime dateTime) {
+
+String _formatDate(DateTime dateTime) {
     return DateFormat('dd MMMM yyyy', "id_ID").format(dateTime.toLocal());
   }
 
@@ -68,7 +86,7 @@ class _DailyInfoPageState extends State<DailyInfoPage> {
     _dateStringSend = _formatDateSend(DateTime.now());
     context.read<LoginProvider>().getCheckinData();
     Provider.of<LoginProvider>(context, listen: false).getLoginState(context);
-    Timer.periodic(Duration(seconds: 1), (Timer t) async => _getTime());
+    Timer.periodic(Duration(seconds: 2), (Timer t) async => _getTime());
 
     super.initState();
   }

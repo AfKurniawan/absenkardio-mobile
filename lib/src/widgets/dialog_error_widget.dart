@@ -8,12 +8,14 @@ import 'package:provider/provider.dart';
 class CustomDialogError extends StatelessWidget {
   final String title, description, buttonText;
   final Image image;
+  final VoidCallback btnOkeAction;
 
   CustomDialogError({
     @required this.title,
     @required this.description,
     @required this.buttonText,
     this.image,
+    this.btnOkeAction
   });
 
   @override
@@ -81,9 +83,7 @@ class CustomDialogError extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // To close the dialog
-                      },
+                      onPressed: btnOkeAction,
                       child: Text(buttonText, style: TextStyle(color: Colors.blueAccent)),
                     ),
                   ),

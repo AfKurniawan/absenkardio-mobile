@@ -27,6 +27,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -77,8 +78,9 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
   String _darkMapStyle;
   String _lightMapStyle;
   Future _loadMapStyles() async {
-    _darkMapStyle  = await rootBundle.loadString('assets/maps_style/dark.json');
-    _lightMapStyle = await rootBundle.loadString('assets/maps_style/light.json');
+    _darkMapStyle = await rootBundle.loadString('assets/maps_style/dark.json');
+    _lightMapStyle =
+        await rootBundle.loadString('assets/maps_style/light.json');
   }
 
   Widget mapWidget() {
@@ -92,7 +94,9 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
       ),
       onMapCreated: (GoogleMapController controller) {
         _mapController = controller;
-        tm.isDark? controller.setMapStyle(_darkMapStyle) : controller.setMapStyle(_lightMapStyle);
+        tm.isDark
+            ? controller.setMapStyle(_darkMapStyle)
+            : controller.setMapStyle(_lightMapStyle);
       },
     );
   }
@@ -111,9 +115,9 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
   String _dateString = "";
   String _fileString = "";
   String _dateStringSend = "";
-  String _tahun = "" ;
-  String _bulan = "" ;
-  String _tanggal = "" ;
+  String _tahun = "";
+  String _bulan = "";
+  String _tanggal = "";
   TextEditingController controllerIzin = new TextEditingController();
 
   @override
@@ -178,12 +182,15 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
   String _formatTime(DateTime dateTime) {
     return DateFormat('HH:mm:ss', "id_ID").format(dateTime.toLocal());
   }
+
   String _formatHari(DateTime dateTime) {
     return DateFormat('dd', "id_ID").format(dateTime.toLocal());
   }
+
   String _formatBulan(DateTime dateTime) {
     return DateFormat('MMMM', "id_ID").format(dateTime.toLocal());
   }
+
   String _formatTahun(DateTime dateTime) {
     return DateFormat('yyyy', "id_ID").format(dateTime.toLocal());
   }
@@ -217,6 +224,16 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
         _image = File(newPath);
       }
     });
+  }
+
+  Future<File> getImageFileFromAssets(String path) async {
+    final byteData = await rootBundle.load('assets/$path');
+    final file = File('${(await getTemporaryDirectory()).path}/$path');
+    await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+    _image = File('${(await getTemporaryDirectory()).path}/$path');
+    fileName = _image.path.split("/").last;
+    print("DEFAULT IMAGE ===> $fileName");
+    return file;
   }
 
   Future getImage() async {
@@ -280,23 +297,27 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
 
   showDialogError(BuildContext context, String title, String description) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) => CustomDialogError(
-          title: "$title", description: "$description", buttonText: "Oke"),
-    );
+        context: context,
+        builder: (BuildContext context) => CustomDialogError(
+            title: "$title",
+            description: "$description",
+            buttonText: "Oke",
+            btnOkeAction: () {
+              Navigator.of(context).pop();
+            }));
   }
 
   Future<CheckoutModel> checkout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var url = Constants.CHECKOUT_URL;
     var body = {
-          'uid': prefs.getString('uid'),
-          'time_out': "$_timeString",
-          'location_out': _currentAddress,
-          'status_out': seletedStatus,
-          'reason': controllerIzin.text,
-          'selfie_out': fileName,
-          'date': "$_dateStringSend",
+      'uid': prefs.getString('uid'),
+      'time_out': "$_timeString",
+      'location_out': _currentAddress,
+      'status_out': seletedStatus,
+      'reason': controllerIzin.text,
+      'selfie_out': fileName,
+      'date': "$_dateStringSend",
     };
 
     print("YOUR BODY REQUEST IS ${json.encode(body)}");
@@ -316,7 +337,7 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
       _upload(context);
       showSuccess(context);
     } else if (users.messages == "AllreadyCheckout") {
-      failedDialog(context, "Checkout Gagal", "Anda sudah chekout hari ini");
+      failedDialog(context, "Checkout Gagal", "Anda sudah checkout hari ini");
     } else {
       failedDialog(context, "Checkin Gagal", "Silahkan coba lagi nanti");
     }
@@ -347,7 +368,12 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomDialogError(
-          title: "$title", description: "$description", buttonText: "Oke"),
+          title: "$title",
+          description: "$description",
+          buttonText: "Oke",
+          btnOkeAction: () {
+            Navigator.of(context).pop();
+          }),
     );
   }
 
@@ -356,7 +382,6 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
       seletedStatus = key;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -377,27 +402,31 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
       ),
     );
     return Consumer<ThemeModel>(
-      builder: (context, tm, _){
+      builder: (context, tm, _) {
         return Scaffold(
           backgroundColor: tm.isDark ? Colors.grey[700] : Colors.white,
           appBar: AppBar(
-            backgroundColor: tm.isDark? Colors.grey[900]: Colors.white,
+            backgroundColor: tm.isDark ? Colors.grey[900] : Colors.white,
             centerTitle: true,
-            title: Text("Check-in", style: TextStyle(color: LightColor.unsBlue)),
+            title:
+                Text("Check-out", style: TextStyle(color: LightColor.unsBlue)),
             elevation: 0,
           ),
           body: Stack(
             children: <Widget>[
               Container(
-                  height: 200,
+                  height: 230,
                   decoration: BoxDecoration(
                     color: Colors.transparent,
                   ),
                   child: _child),
               SingleChildScrollView(
-                padding: EdgeInsets.only(top: 180),
+                //physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.only(top: 230),
                 child: Container(
-                    height: MediaQuery.of(context).size.height - 200,
+                    height: seletedStatus == "Izin"
+                        ? MediaQuery.of(context).size.height / 1.6
+                        : MediaQuery.of(context).size.height / 1.6,
                     decoration: BoxDecoration(
                       color: tm.isDark ? Colors.black : Colors.white,
                       borderRadius: BorderRadius.only(
@@ -412,7 +441,8 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 18.0, right: 18, top: 10),
+                      padding:
+                          const EdgeInsets.only(left: 18.0, right: 18, top: 10),
                       child: Column(
                         children: <Widget>[
                           Container(
@@ -420,61 +450,84 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
                             width: 40,
                             decoration: BoxDecoration(
                               color: Colors.grey[600],
-                              borderRadius: BorderRadius.all(Radius.circular(20),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(20),
                               ),
                             ),
                           ),
                           SizedBox(height: 30),
-                          Text("Yuuk lengkapi absensi dulu sebelum checkout ini...", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300)),
+                          Text(
+                              "Yuuk lengkapi absensi dulu sebelum checkout ini...",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w300)),
                           Padding(
-                              padding: const EdgeInsets.only(left: 18, right: 18, top: 20),
+                              padding: const EdgeInsets.only(
+                                  left: 18, right: 18, top: 20),
                               child: Row(
                                 children: <Widget>[
                                   Expanded(
                                     child: Container(
-                                      padding: EdgeInsets.only(bottom: 10.0, top: 10),
+                                      padding: EdgeInsets.only(
+                                          bottom: 10.0, top: 10),
                                       decoration: BoxDecoration(
-                                        color: tm.isDark? Colors.grey[800]: Color(0xfffcfcfd),
-                                        borderRadius: BorderRadius.circular(15.0),
+                                        color: tm.isDark
+                                            ? Colors.grey[800]
+                                            : Color(0xfffcfcfd),
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
                                         border: Border.all(
-                                            color: Colors.grey[200],
-                                            width: 3
-                                        ),
+                                            color: Colors.grey[200], width: 3),
                                         boxShadow: [
                                           BoxShadow(
                                             offset: Offset(1, 4),
                                             blurRadius: 6,
-                                            color: tm.isDark? Colors.transparent: Colors.grey[200],
+                                            color: tm.isDark
+                                                ? Colors.transparent
+                                                : Colors.grey[200],
                                           ),
                                         ],
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10.0),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
                                           children: <Widget>[
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 Text(
                                                   "$_tanggal",
-                                                  style:
-                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
-                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                  style: TextStyle(
+                                                      color: tm.isDark
+                                                          ? Colors.white
+                                                          : Colors.grey[700],
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w300),
                                                 ),
                                                 SizedBox(width: 5),
                                                 Text(
                                                   "$_bulan",
-                                                  style:
-                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
-                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                  style: TextStyle(
+                                                      color: tm.isDark
+                                                          ? Colors.white
+                                                          : Colors.grey[700],
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w300),
                                                 ),
                                                 SizedBox(width: 5),
                                                 Text(
                                                   "$_tahun",
-                                                  style:
-                                                  TextStyle(color: tm.isDark? Colors.white: Colors.grey[700],
-                                                      fontSize: 20, fontWeight: FontWeight.w300),
+                                                  style: TextStyle(
+                                                      color: tm.isDark
+                                                          ? Colors.white
+                                                          : Colors.grey[700],
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w300),
                                                 ),
                                               ],
                                             ),
@@ -506,21 +559,21 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
 
                                             Container(
                                                 child: Center(
-                                                  child: Text("$_timeString",
-                                                      style: TextStyle(
-                                                          fontSize: 30,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: Colors.blueAccent)),
-                                                )
-                                            )
+                                              child: Text("$_timeString",
+                                                  style: TextStyle(
+                                                      fontSize: 30,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          Colors.blueAccent)),
+                                            ))
                                           ],
                                         ),
                                       ),
                                     ),
                                   )
                                 ],
-                              )
-                          ),
+                              )),
                           SizedBox(height: 30),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -529,7 +582,10 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("Bagaimana Status Anda Hari Ini ??", style: TextStyle(fontSize: 14, color: Colors.grey[500])),
+                                  Text("Bagaimana Status Anda Hari Ini ??",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[500])),
                                   SizedBox(height: 5),
                                   genderSelectionTile,
                                 ],
@@ -539,118 +595,154 @@ class _NewCheckoutPageState extends State<NewCheckoutPage> {
                                 tag: 1,
                                 child: InkWell(
                                   splashColor: Colors.white,
-                                  onTap: (){
-                                    getImage2();
+                                  onTap: () {
+                                    if(seletedStatus == "Izin") {
+                                      getImageFileFromAssets('assets/icons/no-image.png');
+                                    } else {
+                                      getImage2();
+                                    }
                                   },
-                                  child: Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          colors: [LightColor.unsBlue, LightColor.lightBlue]),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(16)),
-                                      child: _image == null
-                                          ? Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.camera_alt, color: Colors.white, size: 30),
-                                          Text(seletedStatus == "Sakit" ? "Ket. Sakit" : "Selfie", style: TextStyle(color: Colors.white)),
-                                        ],
-                                      )
-                                          : Stack(
-                                        children: [
-                                          Container(
-                                            height: 80,
-                                            width: 80,
-                                            child: Image.file(
-                                              _image,
-                                              height: 80,
-                                              width: 80,
-                                              fit: BoxFit.fill,
-                                            ),
+                                  child: seletedStatus == "Izin"
+                                      ? Container()
+                                      : Container(
+                                          width: 80,
+                                          height: 80,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [
+                                              LightColor.unsBlue,
+                                              LightColor.lightBlue
+                                            ]),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
                                           ),
-                                          Positioned(
-                                              bottom: 5,
-                                              right: 5,
-                                              child: Center(
-                                                  child: Icon(Icons.camera_alt, color: Colors.white38))
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(16)),
+                                            child: _image == null
+                                                ? Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(Icons.camera_alt,
+                                                          color: Colors.white,
+                                                          size: 30),
+                                                      Text(
+                                                          seletedStatus ==
+                                                                  "Sakit"
+                                                              ? "Ket. Sakit"
+                                                              : "Selfie",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ],
+                                                  )
+                                                : Stack(
+                                                    children: [
+                                                      Container(
+                                                        height: 80,
+                                                        width: 80,
+                                                        child: Image.file(
+                                                          _image,
+                                                          height: 80,
+                                                          width: 80,
+                                                          fit: BoxFit.fill,
+                                                        ),
+                                                      ),
+                                                      Positioned(
+                                                          bottom: 5,
+                                                          right: 5,
+                                                          child: Center(
+                                                              child: Icon(
+                                                                  Icons
+                                                                      .camera_alt,
+                                                                  color: Colors
+                                                                      .white38)))
+                                                    ],
+                                                  ),
+                                          ),
+                                        ),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          SizedBox(height: seletedStatus == "Izin" ? 20 : 100),
                           seletedStatus == 'Izin'
                               ? FormWidget(
-                            maxline: 3,
-                            hint: "Keterangan",
-                            obscure: false,
-                            textEditingController: controllerIzin,
-                            keyboardType: TextInputType.text,
-                            textInputAction: TextInputAction.next,
-                            icon: IconButton(icon: Icon(Icons.text_fields)),
-                          ) : Container(),
+                                  maxline: 3,
+                                  hint: "Keterangan",
+                                  obscure: false,
+                                  textEditingController: controllerIzin,
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                  icon:
+                                      IconButton(icon: Icon(Icons.text_fields)),
+                                )
+                              : Container(),
                           SizedBox(
                             height: 30,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 12.0, right: 12),
+                            child: InkWell(
+                              onTap: () {
+                                if (_image != null &&
+                                    seletedStatus == "Pulang") {
+                                  checkout();
+                                } else if (position.latitude == null ||
+                                    position.longitude == null) {
+                                  showDialogError(context, "Lokasi Tidak Valid",
+                                      "Lokasi anda tidak dapat divalidasi");
+                                } else if (seletedStatus == "Izin" &&
+                                    controllerIzin.text.isEmpty) {
+                                  showDialogError(
+                                      context,
+                                      "Keterangan belum diisi",
+                                      "Harap isi keterangan sebelum melakukan Checkin");
+                                } else if (seletedStatus == "Izin" &&
+                                    _image == null &&
+                                    controllerIzin.text.isNotEmpty) {
+                                  checkout();
+                                } else {
+                                  showDialogError(
+                                      context,
+                                      "Anda belum melakukan foto selfie",
+                                      "Silahkan melakukan foto selfie terlebih dahulu sebelum Checkin");
+                                }
+                              },
+                              splashColor: Color.fromRGBO(143, 148, 251, 1),
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    gradient: LinearGradient(colors: [
+                                      LightColor.unsBlue,
+                                      Color.fromRGBO(143, 148, 251, .6),
+                                    ])),
+                                child: Center(
+                                  child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Check-Out",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w300,
+                                            fontSize: 18),
+                                      )),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     )),
               ),
-
             ],
           ),
-          floatingActionButton:
-          Padding(
-            padding: const EdgeInsets.only(left:12.0, right: 12),
-            child: InkWell(
-              onTap: () {
-                if(position.latitude == null || position.longitude == null ){
-                  showDialogError(context, "Lokasi Tidak Valid", "Lokasi anda tidak dapat divalidasi");
-                } else if(seletedStatus == "Pulang" && _image != null){
-                  checkout();
-                } else if(seletedStatus == "Izin" &&controllerIzin.text.isEmpty){
-                  showDialogError(context, "Keterangan belum diisi", "Harap isi keterangan sebelum melakukan Checkout");
-                } else {
-                  showDialogError(context, "Anda belum melakukan foto selfie", "Silahkan melakukan foto selfie terlebih dahulu sebelum Checkout");
-                }
-              },
-              splashColor: Color.fromRGBO(143, 148, 251, 1),
-              child: Container(
-                height: 50,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: LinearGradient(colors: [
-                      LightColor.unsBlue,
-                      Color.fromRGBO(143, 148, 251, .6),
-                    ])),
-                child: Center(
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Check-Out",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                            fontSize: 18),
-                      )),
-                ),
-              ),
-            ),
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         );
       },
     );
   }
-
-
 }

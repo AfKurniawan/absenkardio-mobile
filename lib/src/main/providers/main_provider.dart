@@ -1,4 +1,4 @@
-import 'package:absensi_prodi/src/checkin/pages/checkin_page.dart';
+
 import 'package:absensi_prodi/src/checkin/pages/new_checkin_page.dart';
 import 'package:absensi_prodi/src/login/providers/login_provider.dart';
 import 'package:absensi_prodi/src/profile/pages/new_profile_page.dart';
@@ -26,7 +26,6 @@ class MainProvider extends ChangeNotifier {
         currenPage = isCheckin == true ? DailyInfoPage() : NewCheckinPage();
         Provider.of<ProfileProvider>(context, listen: false).getUseData(context);
         break;
-
 
       case 1 :
         currentTitle = "Informasi";

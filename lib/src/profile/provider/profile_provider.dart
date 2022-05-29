@@ -30,7 +30,7 @@ class ProfileProvider extends ChangeNotifier {
 
   logoutAction(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+    prefs.remove('isLogin');
     Navigator.of(context).pushReplacementNamed("/");
   }
 
@@ -54,7 +54,8 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   String userid, fullname, avatar, mail, prodi, nim, statusMhs, type, phone, address;
-  getUseData(BuildContext contest) async{
+  getUseData(BuildContext contest) async {
+    print("===========GET USER DATA===============");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userid = prefs.getString('uid');
     fullname = prefs.getString('fullName');
@@ -70,6 +71,8 @@ class ProfileProvider extends ChangeNotifier {
     emailTextEditControlller.text = prefs.getString('mail');
     noHpTextEditController.text = prefs.getString('phone');
     addressTextEditController.text = prefs.getString('address');
+
+    print("===== FULLNAME $userid, $fullname, $avatar, $mail, $prodi, $nim, $statusMhs, $type, $phone, $address} ======");
 
     notifyListeners();
   }

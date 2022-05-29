@@ -10,6 +10,7 @@ import 'package:form_field_validator/form_field_validator.dart';
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
+
   final FocusNode emailnode = FocusNode();
   final FocusNode passwordnode = FocusNode();
 
@@ -21,7 +22,6 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
         body: body(context));
   }
 
@@ -33,9 +33,6 @@ class LoginPage extends StatelessWidget {
 
 
   Widget body(BuildContext context) {
-    var local = AppLocalizations.of(context);
-    // final provider = Provider.of<LoginProvider>(context);
-    // final prefsprovider = Provider.of<PrefsProvider>(context);
     return Consumer<ThemeModel>(
       builder: (context, tm, _){
         return SingleChildScrollView(
@@ -193,7 +190,7 @@ class LoginPage extends StatelessWidget {
               final String email = controllerEmail.text.trim();
               final String password = controllerPassword.text.trim();
               final String phone = controllerEmail.text.trim();
-              provider.login(context, email, password);
+              provider.newLoginAction(context, email, password);
             }
 
           },

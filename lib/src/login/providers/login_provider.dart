@@ -42,53 +42,69 @@ class LoginProvider extends ChangeNotifier {
   }
 
 
-  void login(BuildContext context, String email, String password) {
-    loginAction(Constants.LOGIN_URL, {
+  // void login(BuildContext context, String email, String password) {
+  //   loginAction(Constants.LOGIN_URL, {
+  //     'nim': email,
+  //     'password': password
+  //   }).then((response)  {
+  //     if (response.error == false) {
+  //       isLogin = true ;
+  //       setLoginState(response);
+  //       Navigator.pushReplacementNamed(context, "main_page");
+  //       getLoginState(context);
+  //     } else {
+  //       failedDialog(context, "Login gagal", "Periksa kembali NIM dan Password anda");
+  //     }
+  //   });
+  // }
+  //
+  // Future<UserModel> loginAction(String url, var body) async {
+  //   return await http.post(Uri.parse(url),
+  //       body: body,
+  //       headers: {"Accept": "application/json"}).then((http.Response response) {
+  //     final int statusCode = response.statusCode;
+  //     var users = UserModel.fromJson(json.decode(response.body));
+  //     print(response.body);
+  //
+  //     if (statusCode < 200 || statusCode > 400 || json == null) {
+  //       throw new Exception("Error while fetching data");
+  //     }
+  //     return users;
+  //   });
+  // }
+
+  Future<UserModel> newLoginAction(BuildContext context, String email, String password) async {
+    print("======== EXECUTE LOGIN ==========");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var body = {
       'nim': email,
       'password': password
-    }).then((response)  {
-      if (response.error == false) {
-        isLogin = true ;
-        setLoginState(response);
-        Navigator.pushReplacementNamed(context, "main_page");
-        getLoginState(context);
-      } else {
-        failedDialog(context, "Login gagal", "Periksa kembali NIM dan Password anda");
-      }
-    });
+    };
+    var response = await http.post(Uri.parse(Constants.LOGIN_URL), body: body);
+    final responseJson = UserModel.fromJson(json.decode(response.body));
+
+    print("======== RESPONSE BODY ${response.body}");
+    if(response.statusCode == 200 && responseJson.messages == "success"){
+      prefs.setBool('isLogin', true);
+      prefs.setString('uid', "${responseJson.user.id}");
+      prefs.setString('fullName', "${responseJson.user.firstname} ${responseJson.user.lastname}");
+      prefs.setString('avatar', responseJson.user.avatar == null ? "" : "${responseJson.user.avatar}");
+      prefs.setString('prodi', "${responseJson.user.company}");
+      prefs.setString('mail', "${responseJson.user.emailaddress}");
+      prefs.setString('nim', "${responseJson.user.idno}");
+      prefs.setString('statusMhs', "${responseJson.user.employmentstatus}");
+      prefs.setString('tipe', "${responseJson.user.employmenttype}");
+      prefs.setString('phone', "${responseJson.user.mobileno}");
+      prefs.setString('address', "${responseJson.user.homeaddress}");
+
+      Navigator.pushReplacementNamed(context, "main_page");
+
+    } else {
+      failedDialog(context, "Login gagal", "Periksa kembali NIM dan Password anda");
+    }
   }
 
-  Future<UserModel> loginAction(String url, var body) async {
-    return await http.post(Uri.parse(url),
-        body: body,
-        headers: {"Accept": "application/json"}).then((http.Response response) {
-      final int statusCode = response.statusCode;
-      var users = UserModel.fromJson(json.decode(response.body));
-      print(response.body);
 
-      if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error while fetching data");
-      }
-      return users;
-    });
-  }
-
-  setLoginState(UserModel model) async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    notifyListeners();
-    prefs.setBool('isLogin', true);
-    prefs.setString('uid', model.user.id);
-    prefs.setString('fullName', "${model.user.firstname} ${model.user.lastname}");
-    prefs.setString('avatar', model.user.avatar);
-    prefs.setString('prodi', model.user.company);
-    prefs.setString('mail', model.user.emailaddress);
-    prefs.setString('nim', model.user.idno);
-    prefs.setString('statusMhs', model.user.employmentstatus);
-    prefs.setString('tipe', model.user.employmenttype);
-    prefs.setString('phone', model.user.mobileno);
-    prefs.setString('address', model.user.homeaddress);
-    return true;
-  }
 
   getLoginState(BuildContext contest) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -111,6 +127,9 @@ class LoginProvider extends ChangeNotifier {
         description: description,
         buttonText: AppLocalizations.of(context)
             .translate("button_register_dialog_error"),
+        btnOkeAction: (){
+          Navigator.of(context).pop();
+        },
       ),
     );
   }
